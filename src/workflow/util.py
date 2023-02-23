@@ -136,10 +136,7 @@ def utf8ify(s):
     if isinstance(s, str):
         return s
 
-    if isinstance(s, unicode):
-        return s.encode('utf-8')
-
-    return str(s)
+    return s.encode('utf-8') if isinstance(s, unicode) else str(s)
 
 
 def applescriptify(s):
@@ -209,11 +206,7 @@ def run_applescript(script, *args, **kwargs):
 
     cmd = ['/usr/bin/osascript', '-l', lang]
 
-    if os.path.exists(script):
-        cmd += [script]
-    else:
-        cmd += ['-e', script]
-
+    cmd += [script] if os.path.exists(script) else ['-e', script]
     cmd.extend(args)
 
     return run_command(cmd, **kwargs)
@@ -339,10 +332,11 @@ def appinfo(name):
 
     cmd = ['mdls', '-raw', '-name', 'kMDItemCFBundleIdentifier', path]
     bid = run_command(cmd).strip()
-    if not bid:  # pragma: no cover
-        return None
-
-    return AppInfo(unicodify(name), unicodify(path), unicodify(bid))
+    return (
+        AppInfo(unicodify(name), unicodify(path), unicodify(bid))
+        if bid
+        else None
+    )
 
 
 @contextmanager
@@ -360,7 +354,7 @@ def atomic_writer(fpath, mode):
     :type mode: string
 
     """
-    suffix = '.{}.tmp'.format(os.getpid())
+    suffix = f'.{os.getpid()}.tmp'
     temppath = fpath + suffix
     with open(temppath, mode) as fp:
         try:
@@ -404,7 +398,7 @@ class LockFile(object):
 
     def __init__(self, protected_path, timeout=0.0, delay=0.05):
         """Create new :class:`LockFile` object."""
-        self.lockfile = protected_path + '.lock'
+        self.lockfile = f'{protected_path}.lock'
         self._lockfile = None
         self.timeout = timeout
         self.delay = delay

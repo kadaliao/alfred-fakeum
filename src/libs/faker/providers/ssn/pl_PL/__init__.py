@@ -9,11 +9,7 @@ def checksum(digits):
     Calculates and returns a control digit for given list of digits basing on PESEL standard.
     """
     weights_for_check_digit = [9, 7, 3, 1, 9, 7, 3, 1, 9, 7]
-    check_digit = 0
-
-    for i in range(0, 10):
-        check_digit += weights_for_check_digit[i] * digits[i]
-
+    check_digit = sum(weights_for_check_digit[i] * digits[i] for i in range(10))
     check_digit %= 10
 
     return check_digit
@@ -24,9 +20,7 @@ def calculate_month(birth_date):
     Calculates and returns a month number basing on PESEL standard.
     """
     year = int(birth_date.strftime('%Y'))
-    month = int(birth_date.strftime('%m')) + ((int(year / 100) - 14) % 5) * 20
-
-    return month
+    return int(birth_date.strftime('%m')) + (year // 100 - 14) % 5 * 20
 
 
 class Provider(SsnProvider):
@@ -49,16 +43,15 @@ class Provider(SsnProvider):
         day = int(birth_date.strftime('%d'))
 
         pesel_digits = [
-            int(year_without_century / 10),
+            year_without_century // 10,
             year_without_century % 10,
             int(month / 10),
             month % 10,
-            int(day / 10), day % 10,
+            day // 10,
+            day % 10,
         ]
 
-        for _ in range(4):
-            pesel_digits.append(self.random_digit())
-
+        pesel_digits.extend(self.random_digit() for _ in range(4))
         pesel_digits.append(checksum(pesel_digits))
 
         return ''.join(str(digit) for digit in pesel_digits)

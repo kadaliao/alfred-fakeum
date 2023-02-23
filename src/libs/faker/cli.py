@@ -47,7 +47,7 @@ def print_provider(doc, provider, formatters, excludes=None, output=None):
         remains = 150 - margin
         separator = '#'
         for line in lines:
-            for i in range(0, (len(line) // remains) + 1):
+            for i in range((len(line) // remains) + 1):
                 print("\t{fake:<{margin}}{separator} {example}".format(
                     fake=signature,
                     separator=separator,
@@ -66,7 +66,7 @@ def print_doc(provider_or_field=None,
     fake.seed_instance(seed)
 
     from faker.providers import BaseProvider
-    base_provider_formatters = [f for f in dir(BaseProvider)]
+    base_provider_formatters = list(dir(BaseProvider))
 
     if provider_or_field:
         if '.' in provider_or_field:

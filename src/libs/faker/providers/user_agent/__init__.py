@@ -36,9 +36,9 @@ class Provider(BaseProvider):
     def chrome(self, version_from=13, version_to=63,
                build_from=800, build_to=899):
         saf = str(self.generator.random.randint(531, 536)) + \
-            str(self.generator.random.randint(0, 2))
+                str(self.generator.random.randint(0, 2))
         tmplt = '({0}) AppleWebKit/{1} (KHTML, like Gecko)' \
-                ' Chrome/{2}.0.{3}.0 Safari/{4}'
+                    ' Chrome/{2}.0.{3}.0 Safari/{4}'
         platforms = (
             tmplt.format(self.linux_platform_token(),
                          saf,
@@ -57,7 +57,7 @@ class Provider(BaseProvider):
                          saf),
         )
 
-        return 'Mozilla/5.0 ' + self.random_element(platforms)
+        return f'Mozilla/5.0 {self.random_element(platforms)}'
 
     def firefox(self):
         ver = (
@@ -92,25 +92,30 @@ class Provider(BaseProvider):
                              self.generator.random.choice(ver)),
         )
 
-        return 'Mozilla/5.0 ' + self.random_element(platforms)
+        return f'Mozilla/5.0 {self.random_element(platforms)}'
 
     def safari(self):
         saf = "{0}.{1}.{2}".format(self.generator.random.randint(531, 535),
                                    self.generator.random.randint(1, 50),
                                    self.generator.random.randint(1, 7))
-        if not self.generator.random.getrandbits(1):
-            ver = "{0}.{1}".format(self.generator.random.randint(4, 5),
-                                   self.generator.random.randint(0, 1))
-        else:
-            ver = "{0}.0.{1}".format(self.generator.random.randint(4, 5),
-                                     self.generator.random.randint(1, 5))
+        ver = (
+            "{0}.0.{1}".format(
+                self.generator.random.randint(4, 5),
+                self.generator.random.randint(1, 5),
+            )
+            if self.generator.random.getrandbits(1)
+            else "{0}.{1}".format(
+                self.generator.random.randint(4, 5),
+                self.generator.random.randint(0, 1),
+            )
+        )
         tmplt_win = '(Windows; U; {0}) AppleWebKit/{1} (KHTML, like Gecko)' \
-                    ' Version/{2} Safari/{3}'
+                        ' Version/{2} Safari/{3}'
         tmplt_mac = '({0} rv:{1}.0; {2}) AppleWebKit/{3} (KHTML, like Gecko)' \
-                    ' Version/{4} Safari/{5}'
+                        ' Version/{4} Safari/{5}'
         tmplt_ipod = '(iPod; U; CPU iPhone OS {0}_{1} like Mac OS X; {2})' \
-                     ' AppleWebKit/{3} (KHTML, like Gecko) Version/{4}.0.5' \
-                     ' Mobile/8B{5} Safari/6{6}'
+                         ' AppleWebKit/{3} (KHTML, like Gecko) Version/{4}.0.5' \
+                         ' Mobile/8B{5} Safari/6{6}'
         locale = self.generator.locale().replace('_', '-')
         platforms = (
             tmplt_win.format(self.windows_platform_token(),
@@ -132,7 +137,7 @@ class Provider(BaseProvider):
                               saf),
         )
 
-        return 'Mozilla/5.0 ' + self.random_element(platforms)
+        return f'Mozilla/5.0 {self.random_element(platforms)}'
 
     def opera(self):
         platform = '({0}; {1}) Presto/2.9.{2} Version/{3}.00'.format(

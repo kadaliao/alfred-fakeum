@@ -198,10 +198,7 @@ def get_fake_data(names=None, count=1):
 
     for name in names:
 
-        data = []
-        for _ in range(count):
-            data.append(get_fake_datum(name))
-
+        data = [get_fake_datum(name) for _ in range(count)]
         if name in ('Paragraph', 'Address'):
             data = '\n\n'.join(data)
         else:
@@ -220,11 +217,7 @@ def main(wf):
                     autocomplete='workflow:update',
                     icon='update-available.png')
 
-    query = None
-
-    if len(wf.args):
-        query = wf.args[0]
-
+    query = wf.args[0] if len(wf.args) else None
     log.debug('query=%r', query)
 
     count = 0
@@ -239,9 +232,11 @@ def main(wf):
 
         if count:
             if not count.isdigit():
-                wf.add_item(u'Not a number : ' + count,
-                            'Please enter a number',
-                            icon=ICON_WARNING)
+                wf.add_item(
+                    f'Not a number : {count}',
+                    'Please enter a number',
+                    icon=ICON_WARNING,
+                )
                 wf.send_feedback()
                 return
 
@@ -276,15 +271,17 @@ def main(wf):
         subtitle = data
         if count:
             example = data.split('\n')[0].strip()
-            subtitle = u'{} ✕ e.g. "{}"'.format(count, example)
+            subtitle = f'{count} ✕ e.g. "{example}"'
 
-        it = wf.add_item(name,
-                         subtitle,
-                         arg=data,
-                         autocomplete=u'{} {} '.format(name, DELIMITER),
-                         valid=True,
-                         largetext=data,
-                         copytext=data)
+        it = wf.add_item(
+            name,
+            subtitle,
+            arg=data,
+            autocomplete=f'{name} {DELIMITER} ',
+            valid=True,
+            largetext=data,
+            copytext=data,
+        )
 
         it.setvar('title', 'Copied to Clipboard')
         it.setvar('text', data)

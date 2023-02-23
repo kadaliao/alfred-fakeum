@@ -38,9 +38,7 @@ def remove_accents(value):
 
     def replace_accented_character(match):
         matched = match.group(0)
-        if matched in search:
-            return replace[search.find(matched)]
-        return matched
+        return replace[search.find(matched)] if matched in search else matched
 
     return re.sub(r'[{0}]+'.format(search), replace_accented_character, value)
 
@@ -61,9 +59,7 @@ def latinize(value):
                    'Ou Au Eu '
                    'ou au eu').split()
         matched = match.group(0)
-        if matched in search:
-            return replace[search.index(matched)]
-        return matched
+        return replace[search.index(matched)] if matched in search else matched
 
     search = 'ΑΒΓΔΕΖΗΙΚΛΜΝΞΟΠΡΣΣΤΥΦΩαβγδεζηικλμνξοπρσςτυφω'
     replace = 'AVGDEZIIKLMNXOPRSSTUFOavgdeziiklmnxoprsstyfo'

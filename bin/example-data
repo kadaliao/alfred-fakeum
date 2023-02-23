@@ -10,13 +10,14 @@
 
 """Print sample fake data to STDOUT."""
 
+
 from __future__ import print_function, absolute_import
 
 import sys
 import os
 
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/../src/libs'))
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/../src'))
+sys.path.insert(0, os.path.abspath(f'{os.path.dirname(__file__)}/../src/libs'))
+sys.path.insert(0, os.path.abspath(f'{os.path.dirname(__file__)}/../src'))
 
 
 def main():
@@ -30,7 +31,7 @@ def main():
     print('|-- |--|')
     for name in fakeum.FAKERS:
         ex = fakeum.get_fake_datum(name)
-        print(u'| {} | {} |'.format(name, ex).encode('utf-8'))
+        print(f'| {name} | {ex} |'.encode('utf-8'))
 
 
 if __name__ == '__main__':

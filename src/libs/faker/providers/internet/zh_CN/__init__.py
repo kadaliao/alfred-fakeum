@@ -51,13 +51,13 @@ class Provider(InternetProvider):
             # Avoids he.cn as seen in issue #687
             while domain_word in self.second_level_domains:
                 domain_word = self.domain_word()
-            return domain_word + '.' + self.tld()
+            return f'{domain_word}.{self.tld()}'
         elif levels == 2:
             my_tld = self.tld()
             if my_tld == 'cn':
                 my_second_level = self.random_element(self.second_level_domains)
             else:
                 my_second_level = self.domain_word()
-            return self.domain_word() + '.' + my_second_level + '.' + my_tld
+            return f'{self.domain_word()}.{my_second_level}.{my_tld}'
         else:
-            return self.domain_word() + '.' + self.domain_name(levels - 1)
+            return f'{self.domain_word()}.{self.domain_name(levels - 1)}'

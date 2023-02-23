@@ -35,10 +35,7 @@ class Provider(SsnProvider):
         # Convert it to an int
         elms = mydate.split("-")
         # Adjust for year 2000 if necessary
-        if elms[0][0] == '2':
-            above = True
-        else:
-            above = False
+        above = elms[0][0] == '2'
         # Only keep the last 2 digits of the year
         elms[0] = elms[0][2:4]
         # Simulate the gender/sequence - should be 3 digits

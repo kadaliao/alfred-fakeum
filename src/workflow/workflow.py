@@ -745,11 +745,7 @@ class Item(object):
 
         """
         # Attributes on <item> element
-        attr = {}
-        if self.valid:
-            attr['valid'] = 'yes'
-        else:
-            attr['valid'] = 'no'
+        attr = {'valid': 'yes' if self.valid else 'no'}
         # Allow empty string for autocomplete. This is a useful value,
         # as TABing the result will revert the query back to just the
         # keyword
@@ -758,8 +754,7 @@ class Item(object):
 
         # Optional attributes
         for name in ('uid', 'type'):
-            value = getattr(self, name, None)
-            if value:
+            if value := getattr(self, name, None):
                 attr[name] = value
 
         root = ET.Element('item', attr)
@@ -779,10 +774,7 @@ class Item(object):
 
         # Add icon if there is one
         if self.icon:
-            if self.icontype:
-                attr = dict(type=self.icontype)
-            else:
-                attr = {}
+            attr = dict(type=self.icontype) if self.icontype else {}
             ET.SubElement(root, 'icon', attr).text = self.icon
 
         if self.largetext:
@@ -835,7 +827,7 @@ class Settings(dict):
         data = {}
         with LockFile(self._filepath, 0.5):
             with open(self._filepath, 'rb') as fp:
-                data.update(json.load(fp))
+                data |= json.load(fp)
 
         self._original = deepcopy(data)
 
@@ -855,7 +847,7 @@ class Settings(dict):
             return
 
         data = {}
-        data.update(self)
+        data |= self
 
         with LockFile(self._filepath, 0.5):
             with atomic_writer(self._filepath, 'wb') as fp:
@@ -1067,7 +1059,7 @@ class Workflow(object):
                 'workflow_uid',
                 'workflow_version'):
 
-            value = os.getenv('alfred_' + key, '')
+            value = os.getenv(f'alfred_{key}', '')
 
             if value:
                 if key in ('debug', 'version_build', 'theme_subtext'):
@@ -1097,11 +1089,9 @@ class Workflow(object):
 
         """
         if not self._bundleid:
-            if self.alfred_env.get('workflow_bundleid'):
-                self._bundleid = self.alfred_env.get('workflow_bundleid')
-            else:
-                self._bundleid = unicode(self.info['bundleid'], 'utf-8')
-
+            self._bundleid = self.alfred_env.get('workflow_bundleid') or unicode(
+                self.info['bundleid'], 'utf-8'
+            )
         return self._bundleid
 
     @property
@@ -1235,12 +1225,7 @@ class Workflow(object):
             unicode: full path to workflow's cache directory
 
         """
-        if self.alfred_env.get('workflow_cache'):
-            dirpath = self.alfred_env.get('workflow_cache')
-
-        else:
-            dirpath = self._default_cachedir
-
+        dirpath = self.alfred_env.get('workflow_cache') or self._default_cachedir
         return self._create(dirpath)
 
     @property
@@ -1271,12 +1256,7 @@ class Workflow(object):
             unicode: full path to workflow data directory
 
         """
-        if self.alfred_env.get('workflow_data'):
-            dirpath = self.alfred_env.get('workflow_data')
-
-        else:
-            dirpath = self._default_datadir
-
+        dirpath = self.alfred_env.get('workflow_data') or self._default_datadir
         return self._create(dirpath)
 
     @property
@@ -1324,8 +1304,8 @@ class Workflow(object):
                 if self._workflowdir:
                     break
 
-            if not self._workflowdir:
-                raise IOError("'info.plist' not found in directory tree")
+        if not self._workflowdir:
+            raise IOError("'info.plist' not found in directory tree")
 
         return self._workflowdir
 
@@ -1376,7 +1356,7 @@ class Workflow(object):
         :rtype: ``unicode``
 
         """
-        return self.cachefile('%s.log' % self.bundleid)
+        return self.cachefile(f'{self.bundleid}.log')
 
     @property
     def logger(self):
@@ -1686,7 +1666,7 @@ class Workflow(object):
         """
         serializer = manager.serializer(self.cache_serializer)
 
-        cache_path = self.cachefile('%s.%s' % (name, self.cache_serializer))
+        cache_path = self.cachefile(f'{name}.{self.cache_serializer}')
         age = self.cached_data_age(name)
 
         if (age < max_age or max_age == 0) and os.path.exists(cache_path):
@@ -1716,7 +1696,7 @@ class Workflow(object):
         """
         serializer = manager.serializer(self.cache_serializer)
 
-        cache_path = self.cachefile('%s.%s' % (name, self.cache_serializer))
+        cache_path = self.cachefile(f'{name}.{self.cache_serializer}')
 
         if data is None:
             if os.path.exists(cache_path):
@@ -1741,10 +1721,7 @@ class Workflow(object):
         """
         age = self.cached_data_age(name)
 
-        if not age:
-            return False
-
-        return age < max_age
+        return age < max_age if age else False
 
     def cached_data_age(self, name):
         """Return age in seconds of cache `name` or 0 if cache doesn't exist.
@@ -1755,12 +1732,13 @@ class Workflow(object):
         :rtype: ``int``
 
         """
-        cache_path = self.cachefile('%s.%s' % (name, self.cache_serializer))
+        cache_path = self.cachefile(f'{name}.{self.cache_serializer}')
 
-        if not os.path.exists(cache_path):
-            return 0
-
-        return time.time() - os.stat(cache_path).st_mtime
+        return (
+            time.time() - os.stat(cache_path).st_mtime
+            if os.path.exists(cache_path)
+            else 0
+        )
 
     def filter(self, query, items, key=lambda x: x, ascending=False,
                include_score=False, min_score=0, max_results=0,
@@ -1916,10 +1894,7 @@ class Workflow(object):
             results = results[:max_results]
 
         # return list of ``(item, score, rule)``
-        if include_score:
-            return results
-        # just return list of items
-        return [t[0] for t in results]
+        return results if include_score else [t[0] for t in results]
 
     def _filter_item(self, value, query, match_on, fold_diacritics):
         """Filter ``value`` against ``query`` using rules ``match_on``.
@@ -1966,14 +1941,10 @@ class Workflow(object):
             # initials of the atoms
             initials = ''.join([s[0] for s in atoms if s])
 
-        if match_on & MATCH_ATOM:
-            # is `query` one of the atoms in item?
-            # similar to substring, but scores more highly, as it's
-            # a word within the item
-            if query in atoms:
-                score = 100.0 - (len(value) / len(query))
+        if match_on & MATCH_ATOM and query in atoms:
+            score = 100.0 - (len(value) / len(query))
 
-                return (score, MATCH_ATOM)
+            return (score, MATCH_ATOM)
 
         # `query` matches start (or all) of the initials of the
         # atoms, e.g. ``himym`` matches "How I Met Your Mother"
@@ -2003,8 +1974,7 @@ class Workflow(object):
         # characters in `query` are in item.
         if match_on & MATCH_ALLCHARS:
             search = self._search_for_query(query)
-            match = search(value)
-            if match:
+            if match := search(value):
                 score = 100.0 / ((1 + match.start()) *
                                  (match.end() - match.start() + 1))
 
@@ -2017,11 +1987,7 @@ class Workflow(object):
         if query in self._search_pattern_cache:
             return self._search_pattern_cache[query]
 
-        # Build pattern: include all characters
-        pattern = []
-        for c in query:
-            # pattern.append('[^{0}]*{0}'.format(re.escape(c)))
-            pattern.append('.*?{0}'.format(re.escape(c)))
+        pattern = ['.*?{0}'.format(re.escape(c)) for c in query]
         pattern = ''.join(pattern)
         search = re.compile(pattern, re.IGNORECASE).search
 
@@ -2092,9 +2058,7 @@ class Workflow(object):
                         name = self._bundleid
                     else:  # pragma: no cover
                         name = os.path.dirname(__file__)
-                    self.add_item("Error in workflow '%s'" % name,
-                                  unicode(err),
-                                  icon=ICON_ERROR)
+                    self.add_item(f"Error in workflow '{name}'", unicode(err), icon=ICON_ERROR)
                     self.send_feedback()
             return 1
 
@@ -2198,10 +2162,7 @@ class Workflow(object):
         if not self.version:
             raise ValueError('No workflow version set')
 
-        if not self.last_version_run:
-            return True
-
-        return self.version != self.last_version_run
+        return self.version != self.last_version_run if self.last_version_run else True
 
     @property
     def last_version_run(self):
@@ -2273,10 +2234,7 @@ class Workflow(object):
         status = Workflow().cached_data(key, max_age=0)
 
         # self.logger.debug('update status: %r', status)
-        if not status or not status.get('available'):
-            return False
-
-        return status['available']
+        return status['available'] if status and status.get('available') else False
 
     @property
     def prereleases(self):
@@ -2444,14 +2402,9 @@ class Workflow(object):
         output = self._call_security('find-generic-password', service,
                                      account, '-g')
 
-        # Parsing of `security` output is adapted from python-keyring
-        # by Jason R. Coombs
-        # https://pypi.python.org/pypi/keyring
-        m = re.search(
-            r'password:\s*(?:0x(?P<hex>[0-9A-F]+)\s*)?(?:"(?P<pw>.*)")?',
-            output)
-
-        if m:
+        if m := re.search(
+            r'password:\s*(?:0x(?P<hex>[0-9A-F]+)\s*)?(?:"(?P<pw>.*)")?', output
+        ):
             groups = m.groupdict()
             h = groups.get('hex')
             password = groups.get('pw')
@@ -2815,7 +2768,7 @@ class Workflow(object):
         elif p.returncode == 45:  # password already exists
             raise PasswordExists()
         elif p.returncode > 0:
-            err = KeychainError('Unknown Keychain error : %s' % stdout)
+            err = KeychainError(f'Unknown Keychain error : {stdout}')
             err.retcode = p.returncode
             raise err
         return stdout.strip().decode('utf-8')

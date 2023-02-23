@@ -57,7 +57,7 @@ class Provider(AutomotiveProvider):
         return self._translate_license_plate(english_plate)
 
     def _translate_license_plate(self, license_plate):
-        nums = list(reversed(license_plate[0:4]))
+        nums = list(reversed(license_plate[:4]))
         chars = list(license_plate[5:8])
 
         numerated = re.sub(
@@ -65,13 +65,11 @@ class Provider(AutomotiveProvider):
             lambda x: self.PLATE_MAP[nums.pop()],
             self.LICENSE_FORMAT_AR,
         )
-        ar_plate = re.sub(
+        return re.sub(
             r'\?',
             lambda x: self.PLATE_MAP[chars.pop()],
             numerated,
         )
-
-        return ar_plate
 
     def license_plate(self):
         en_palate = self.license_plate_en()

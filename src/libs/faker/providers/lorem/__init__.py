@@ -37,7 +37,7 @@ class Provider(BaseProvider):
 
         :rtype: list
         """
-        word_list = ext_word_list if ext_word_list else self.word_list
+        word_list = ext_word_list or self.word_list
         if unique:
             return self.random_sample(word_list, length=nb)
         return self.random_choices(word_list, length=nb)
@@ -90,8 +90,7 @@ class Provider(BaseProvider):
 
         :rtype: list
         """
-        return [self.sentence(ext_word_list=ext_word_list)
-                for _ in range(0, nb)]
+        return [self.sentence(ext_word_list=ext_word_list) for _ in range(nb)]
 
     def paragraph(
             self,
@@ -118,11 +117,12 @@ class Provider(BaseProvider):
         if variable_nb_sentences:
             nb_sentences = self.randomize_nb_elements(nb_sentences, min=1)
 
-        para = self.word_connector.join(self.sentences(
-            nb_sentences, ext_word_list=ext_word_list,
-        ))
-
-        return para
+        return self.word_connector.join(
+            self.sentences(
+                nb_sentences,
+                ext_word_list=ext_word_list,
+            )
+        )
 
     def paragraphs(self, nb=3, ext_word_list=None):
         """
@@ -135,8 +135,7 @@ class Provider(BaseProvider):
         :rtype: list
         """
 
-        return [self.paragraph(ext_word_list=ext_word_list)
-                for _ in range(0, nb)]
+        return [self.paragraph(ext_word_list=ext_word_list) for _ in range(nb)]
 
     def text(self, max_nb_chars=200, ext_word_list=None):
         """
@@ -207,5 +206,4 @@ class Provider(BaseProvider):
 
         :rtype: list
         """
-        return [self.text(max_nb_chars, ext_word_list)
-                for _ in range(0, nb_texts)]
+        return [self.text(max_nb_chars, ext_word_list) for _ in range(nb_texts)]

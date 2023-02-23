@@ -206,8 +206,7 @@ class Provider(BaseProvider):
         """
         :param category: application|audio|image|message|model|multipart|text|video
         """
-        category = category if category else self.random_element(
-            list(self.mime_types.keys()))
+        category = category or self.random_element(list(self.mime_types.keys()))
         return self.random_element(self.mime_types[category])
 
     def file_name(self, category=None, extension=None):
@@ -215,7 +214,7 @@ class Provider(BaseProvider):
         :param category: audio|image|office|text|video
         :param extension: file extension
         """
-        extension = extension if extension else self.file_extension(category)
+        extension = extension or self.file_extension(category)
         filename = self.generator.word()
         return '{0}.{1}'.format(filename, extension)
 
@@ -223,8 +222,9 @@ class Provider(BaseProvider):
         """
         :param category: audio|image|office|text|video
         """
-        category = category if category else self.random_element(
-            list(self.file_extensions.keys()))
+        category = category or self.random_element(
+            list(self.file_extensions.keys())
+        )
         return self.random_element(self.file_extensions[category])
 
     def file_path(self, depth=1, category=None, extension=None):
@@ -235,7 +235,7 @@ class Provider(BaseProvider):
         """
         file = self.file_name(category, extension)
         path = "/{0}".format(file)
-        for _ in range(0, depth):
+        for _ in range(depth):
             path = "/{0}{1}".format(self.generator.word(), path)
         return path
 
@@ -245,8 +245,7 @@ class Provider(BaseProvider):
         """
         prefix = prefix or self.random_element(self.unix_device_prefixes)
         suffix = self.random_element(string.ascii_lowercase)
-        path = '/dev/%s%s' % (prefix, suffix)
-        return path
+        return f'/dev/{prefix}{suffix}'
 
     def unix_partition(self, prefix=None):
         """

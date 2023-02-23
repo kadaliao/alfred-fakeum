@@ -28,15 +28,12 @@ class Provider(CompanyProvider):
             sum_ = 0
             for x, y in zip(number, factors):
                 sum_ = sum_ + int(x) * y
-            if sum_ % 11 == 0:
-                return '0'
-            else:
-                return str(11 - sum_ % 11)
+            return '0' if sum_ % 11 == 0 else str(11 - sum_ % 11)
 
         first_digit = str(self.random_digit_not_null())
         body = first_digit + self.bothify('######')
         cs = calculate_checksum(body)
-        return body + '-' + str(cs)
+        return f'{body}-{str(cs)}'
 
     def company_vat(self):
         """

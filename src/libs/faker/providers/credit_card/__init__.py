@@ -68,8 +68,7 @@ class Provider(BaseProvider):
         """ Returns a valid credit card number. """
         card = self._credit_card_type(card_type)
         prefix = self.random_element(card.prefixes)
-        number = self._generate_number(self.numerify(prefix), card.length)
-        return number
+        return self._generate_number(self.numerify(prefix), card.length)
 
     def credit_card_expire(self, start='now', end='+10y', date_format='%m/%y'):
         expire_date = self.generator.date_time_between(start, end)

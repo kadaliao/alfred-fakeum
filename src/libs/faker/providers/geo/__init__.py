@@ -983,11 +983,10 @@ class Provider(BaseProvider):
             return Decimal(str(self.generator.random.randint(-180000000, 180000000) / 1000000.0)).quantize(
                 Decimal(".000001"),
             )
-        else:
-            center = float(center)
-            radius = float(radius)
-            geo = self.generator.random.uniform(center - radius, center + radius)
-            return Decimal(str(geo)).quantize(Decimal(".000001"))
+        center = float(center)
+        radius = float(radius)
+        geo = self.generator.random.uniform(center - radius, center + radius)
+        return Decimal(str(geo)).quantize(Decimal(".000001"))
 
     def latitude(self):
         # Latitude has a range of -90 to 90, so divide by two.
@@ -1003,8 +1002,7 @@ class Provider(BaseProvider):
         """Returns a location known to exist on land in a country specified by `country_code`.
         Defaults to 'en_US'. See the `land_coords` list for available locations/countries.
         """
-        results = [loc for loc in self.land_coords if loc[3] == country_code]
-        if results:
+        if results := [loc for loc in self.land_coords if loc[3] == country_code]:
             place = self.random_element(results)
             return (place[0], place[1]) if coords_only else place
 

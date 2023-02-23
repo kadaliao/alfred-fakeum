@@ -27,18 +27,12 @@ def checksum(sin):
 
     for i in range(1, len(checksumCollection), 2):
         result = checksumCollection[i] * 2
-        if result < 10:
-            checksumCollection[i] = result
-        else:
-            checksumCollection[i] = result - 10 + 1
-
+        checksumCollection[i] = result if result < 10 else result - 10 + 1
     # The appropriate checksum digit is the value that, when summed
     # with the first eight values, results in a value divisible by 10
 
     check_digit = 10 - (sum(checksumCollection) % 10)
-    check_digit = (0 if check_digit == 10 else check_digit)
-
-    return check_digit
+    return (0 if check_digit == 10 else check_digit)
 
 
 class Provider(SsnProvider):
@@ -67,14 +61,10 @@ class Provider(SsnProvider):
         # to reverse the multiplication which occurred on every other
         # element.
         for i in range(1, len(digits), 2):
-            if digits[i] % 2 == 0:
-                digits[i] = (digits[i] // 2)
-            else:
-                digits[i] = (digits[i] + 9) // 2
-
+            digits[i] = (digits[i] // 2) if digits[i] % 2 == 0 else (digits[i] + 9) // 2
         # Build the resulting SIN string.
         sin = ""
-        for i in range(0, len(digits)):
+        for i in range(len(digits)):
             sin += str(digits[i])
             # Add a space to make it conform to Canadian formatting.
             if i in (2, 5):

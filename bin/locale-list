@@ -10,14 +10,15 @@
 
 """Generate a list of locales supported by Faker."""
 
+
 from __future__ import print_function, absolute_import
 
 from pprint import pprint
 import sys
 import os
 
-sys.path.insert(0, os.path.dirname(__file__) + '/../src/libs')
-sys.path.insert(0, os.path.dirname(__file__) + '/../src')
+sys.path.insert(0, f'{os.path.dirname(__file__)}/../src/libs')
+sys.path.insert(0, f'{os.path.dirname(__file__)}/../src')
 
 locale_names = {
     'ar_AA': 'Arabic',

@@ -152,12 +152,10 @@ def toggle_locale(loc):
     if is_active:
         log.info(u'Deactivated locale %s', ALL_LOCALES.get(loc))
         active.remove(loc)
-        wf.settings['locales'] = active
     else:
         log.info(u'Activated locale %s', ALL_LOCALES.get(loc))
         active.append(loc)
-        wf.settings['locales'] = active
-
+    wf.settings['locales'] = active
     run_trigger('locales')
 
 
@@ -173,7 +171,7 @@ def toggle_notifications():
         value = '0'
 
     set_config(name, value)
-    log.info('turned notifications ' + what)
+    log.info(f'turned notifications {what}')
 
     run_trigger('config')
 
@@ -199,11 +197,7 @@ def main(wf):
 
     query = args.get('<query>')
 
-    if args['settings']:
-        return filter_options(query)
-
-    else:
-        return filter_locales(query)
+    return filter_options(query) if args['settings'] else filter_locales(query)
 
 
 if __name__ == '__main__':

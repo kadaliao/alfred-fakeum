@@ -52,7 +52,7 @@ def _arg_cache(name):
     :rtype: ``unicode`` filepath
 
     """
-    return wf().cachefile(name + '.argcache')
+    return wf().cachefile(f'{name}.argcache')
 
 
 def _pid_file(name):
@@ -64,7 +64,7 @@ def _pid_file(name):
     :rtype: ``unicode`` filepath
 
     """
-    return wf().cachefile(name + '.pid')
+    return wf().cachefile(f'{name}.pid')
 
 
 def _process_exists(pid):
@@ -117,14 +117,11 @@ def is_running(name):
     :rtype: bool
 
     """
-    if _job_pid(name) is not None:
-        return True
-
-    return False
+    return _job_pid(name) is not None
 
 
 def _background(pidfile, stdin='/dev/null', stdout='/dev/null',
-                stderr='/dev/null'):  # pragma: no cover
+                stderr='/dev/null'):    # pragma: no cover
     """Fork the current process into a background daemon.
 
     :param pidfile: file to write PID of daemon process to.
@@ -142,7 +139,7 @@ def _background(pidfile, stdin='/dev/null', stdout='/dev/null',
             pid = os.fork()
             if pid > 0:
                 if write:  # write PID of child process to `pidfile`
-                    tmp = pidfile + '.tmp'
+                    tmp = f'{pidfile}.tmp'
                     with open(tmp, 'wb') as fp:
                         fp.write(str(pid))
                     os.rename(tmp, pidfile)
@@ -245,7 +242,7 @@ def run_in_background(name, args, **kwargs):
     return retcode
 
 
-def main(wf):  # pragma: no cover
+def main(wf):    # pragma: no cover
     """Run command in a background process.
 
     Load cached arguments, fork into background, then call
@@ -279,9 +276,7 @@ def main(wf):  # pragma: no cover
         # Run the command
         log.debug('[%s] running command: %r', name, args)
 
-        retcode = subprocess.call(args, **kwargs)
-
-        if retcode:
+        if retcode := subprocess.call(args, **kwargs):
             log.error('[%s] command failed with status %d', name, retcode)
     finally:
         os.unlink(pidfile)

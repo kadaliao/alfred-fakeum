@@ -34,9 +34,7 @@ class Provider(BaseProvider):
         :example 'cfcd208495d565ef66e7dff9f98764da'
         """
         res = hashlib.md5(str(self.generator.random.random()).encode('utf-8'))
-        if raw_output:
-            return res.digest()
-        return res.hexdigest()
+        return res.digest() if raw_output else res.hexdigest()
 
     def sha1(self, raw_output=False):
         """
@@ -44,9 +42,7 @@ class Provider(BaseProvider):
         :example 'b5d86317c2a144cd04d0d7c03b2b02666fafadf2'
         """
         res = hashlib.sha1(str(self.generator.random.random()).encode('utf-8'))
-        if raw_output:
-            return res.digest()
-        return res.hexdigest()
+        return res.digest() if raw_output else res.hexdigest()
 
     def sha256(self, raw_output=False):
         """
@@ -55,9 +51,7 @@ class Provider(BaseProvider):
         """
         res = hashlib.sha256(
             str(self.generator.random.random()).encode('utf-8'))
-        if raw_output:
-            return res.digest()
-        return res.hexdigest()
+        return res.digest() if raw_output else res.hexdigest()
 
     def uuid4(self, cast_to=str):
         """

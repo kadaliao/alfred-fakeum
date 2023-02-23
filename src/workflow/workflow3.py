@@ -71,9 +71,7 @@ class Variables(dict):
         """Return ``alfredworkflow`` `dict`."""
         o = {}
         if self:
-            d2 = {}
-            for k, v in self.items():
-                d2[k] = v
+            d2 = dict(self.items())
             o['variables'] = d2
 
         if self.config:
@@ -91,13 +89,11 @@ class Variables(dict):
             unicode: ``alfredworkflow`` JSON object
 
         """
-        if not self and not self.config:
-            if self.arg:
-                return self.arg
-            else:
-                return u''
-
-        return json.dumps(self.obj)
+        return (
+            self.arg or u''
+            if not self and not self.config
+            else json.dumps(self.obj)
+        )
 
     def __str__(self):
         """Convert to ``alfredworkflow`` JSON object.
@@ -226,8 +222,7 @@ class Modifier(object):
         if self.config:
             o['config'] = self.config
 
-        icon = self._icon()
-        if icon:
+        if icon := self._icon():
             o['icon'] = icon
 
         return o
@@ -381,18 +376,13 @@ class Item3(object):
         if self.config:
             o['config'] = self.config
 
-        # Largetype and copytext
-        text = self._text()
-        if text:
+        if text := self._text():
             o['text'] = text
 
-        icon = self._icon()
-        if icon:
+        if icon := self._icon():
             o['icon'] = icon
 
-        # Modifiers
-        mods = self._modifiers()
-        if mods:
+        if mods := self._modifiers():
             o['mods'] = mods
 
         return o
@@ -437,12 +427,7 @@ class Item3(object):
 
         """
         if self.modifiers:
-            mods = {}
-            for k, mod in self.modifiers.items():
-                mods[k] = mod.obj
-
-            return mods
-
+            return {k: mod.obj for k, mod in self.modifiers.items()}
         return None
 
 
@@ -678,10 +663,7 @@ class Workflow3(Workflow):
             dict: Data suitable for Alfred 3 feedback.
 
         """
-        items = []
-        for item in self._items:
-            items.append(item.obj)
-
+        items = [item.obj for item in self._items]
         o = {'items': items}
         if self.variables:
             o['variables'] = self.variables

@@ -27,12 +27,11 @@ class Documentor(object):
         self.already_generated = [] if excludes is None else excludes[:]
         formatters = []
         providers = self.generator.get_providers()
-        for provider in providers[::-1]:  # reverse
-            if locale and provider.__lang__ != locale:
-                continue
-            formatters.append(
-                (provider, self.get_provider_formatters(provider, **kwargs)),
-            )
+        formatters.extend(
+            (provider, self.get_provider_formatters(provider, **kwargs))
+            for provider in providers[::-1]
+            if not locale or provider.__lang__ == locale
+        )
         return formatters
 
     def get_provider_formatters(self, provider, prefix='fake.',
@@ -80,9 +79,9 @@ class Documentor(object):
 
                 if with_args != 'first':
                     if argspec.varargs:
-                        arguments.append('*' + argspec.varargs)
+                        arguments.append(f'*{argspec.varargs}')
                     if argspec.varkw:
-                        arguments.append('**' + argspec.varkw)
+                        arguments.append(f'**{argspec.varkw}')
 
             # build fake method signature
             signature = "{0}{1}({2})".format(prefix,

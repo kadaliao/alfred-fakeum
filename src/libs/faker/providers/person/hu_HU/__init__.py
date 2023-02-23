@@ -213,10 +213,10 @@ class Provider(PersonProvider):
 
     def first_name_male_abbreviated(self):
         if hasattr(self, 'first_names_male'):
-            return self.random_element(self.first_names_male)[0] + "."
+            return f"{self.random_element(self.first_names_male)[0]}."
         return self.first_name()[0]
 
     def first_name_female_abbreviated(self):
         if hasattr(self, 'first_names_female'):
-            return self.random_element(self.first_names_female)[0] + "."
+            return f"{self.random_element(self.first_names_female)[0]}."
         return self.first_name()[0]

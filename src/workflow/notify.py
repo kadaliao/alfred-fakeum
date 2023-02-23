@@ -117,8 +117,7 @@ def install_notifier():
     # z.extractall(destdir)
     tgz = tarfile.open(archive, 'r:gz')
     tgz.extractall(destdir)
-    assert os.path.exists(n), \
-        'Notify.app could not be installed in %s' % destdir
+    assert os.path.exists(n), f'Notify.app could not be installed in {destdir}'
 
     # Replace applet icon
     icon = notifier_icon_path()
@@ -166,10 +165,7 @@ def validate_sound(sound):
         return None
 
     # Case-insensitive comparison of `sound`
-    if sound.lower() in [s.lower() for s in SOUNDS]:
-        # Title-case is correct for all system sounds as of macOS 10.11
-        return sound.title()
-    return None
+    return sound.title() if sound.lower() in [s.lower() for s in SOUNDS] else None
 
 
 def notify(title='', text='', sound=None):
@@ -253,17 +249,19 @@ def png_to_icns(png_path, icns_path):
     try:
         iconset = os.path.join(tempdir, 'Icon.iconset')
 
-        assert not os.path.exists(iconset), \
-            'iconset already exists: ' + iconset
+        assert not os.path.exists(iconset), f'iconset already exists: {iconset}'
         os.makedirs(iconset)
 
         # Copy source icon to icon set and generate all the other
         # sizes needed
         configs = []
         for i in (16, 32, 128, 256, 512):
-            configs.append(('icon_{0}x{0}.png'.format(i), i))
-            configs.append((('icon_{0}x{0}@2x.png'.format(i), i * 2)))
-
+            configs.extend(
+                (
+                    ('icon_{0}x{0}.png'.format(i), i),
+                    ('icon_{0}x{0}@2x.png'.format(i), i * 2),
+                )
+            )
         shutil.copy(png_path, os.path.join(iconset, 'icon_256x256.png'))
         shutil.copy(png_path, os.path.join(iconset, 'icon_128x128@2x.png'))
 
@@ -283,8 +281,9 @@ def png_to_icns(png_path, icns_path):
         if retcode != 0:
             raise RuntimeError('iconset exited with %d' % retcode)
 
-        assert os.path.exists(icns_path), \
-            'generated ICNS file not found: ' + repr(icns_path)
+        assert os.path.exists(
+            icns_path
+        ), f'generated ICNS file not found: {repr(icns_path)}'
     finally:
         try:
             shutil.rmtree(tempdir)

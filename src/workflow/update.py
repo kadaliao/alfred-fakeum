@@ -155,9 +155,7 @@ class Download(object):
     def alfred_version(self):
         """Minimum Alfred version based on filename extension."""
         m = match_workflow(self.filename)
-        if not m or not m.group(1):
-            return Version('0')
-        return Version(m.group(1))
+        return Version('0') if not m or not m.group(1) else Version(m.group(1))
 
     @property
     def dict(self):
@@ -180,12 +178,12 @@ class Download(object):
 
     def __eq__(self, other):
         """Compare Downloads based on version numbers."""
-        if self.url != other.url \
-                or self.filename != other.filename \
-                or self.version != other.version \
-                or self.prerelease != other.prerelease:
-            return False
-        return True
+        return (
+            self.url == other.url
+            and self.filename == other.filename
+            and self.version == other.version
+            and self.prerelease == other.prerelease
+        )
 
     def __ne__(self, other):
         """Compare Downloads based on version numbers."""
@@ -247,7 +245,7 @@ class Version(object):
         else:
             m = self.match_version(vstr)
         if not m:
-            raise ValueError('invalid version number: ' + vstr)
+            raise ValueError(f'invalid version number: {vstr}')
 
         version, suffix = m.groups()
         parts = self._parse_dotted_string(version)
@@ -256,8 +254,8 @@ class Version(object):
             self.minor = parts.pop(0)
         if len(parts):
             self.patch = parts.pop(0)
-        if not len(parts) == 0:
-            raise ValueError('version number too long: ' + vstr)
+        if len(parts) != 0:
+            raise ValueError(f'version number too long: {vstr}')
 
         if suffix:
             # Build info
@@ -265,11 +263,10 @@ class Version(object):
             if idx > -1:
                 self.build = suffix[idx+1:]
                 suffix = suffix[:idx]
-            if suffix:
-                if not suffix.startswith('-'):
-                    raise ValueError(
-                        'suffix must start with - : ' + suffix)
-                self.suffix = suffix[1:]
+        if suffix:
+            if not suffix.startswith('-'):
+                raise ValueError(f'suffix must start with - : {suffix}')
+            self.suffix = suffix[1:]
 
     def _parse_dotted_string(self, s):
         """Parse string ``s`` into list of ints and strings."""
@@ -294,13 +291,16 @@ class Version(object):
         o = other.tuple[:3]
         if t < o:
             return True
-        if t == o:  # We need to compare suffixes
+        if t == o:
             if self.suffix and not other.suffix:
                 return True
-            if other.suffix and not self.suffix:
-                return False
-            return self._parse_dotted_string(self.suffix) \
-                < self._parse_dotted_string(other.suffix)
+            else:
+                return (
+                    False
+                    if other.suffix and not self.suffix
+                    else self._parse_dotted_string(self.suffix)
+                    < self._parse_dotted_string(other.suffix)
+                )
         # t > o
         return False
 
@@ -357,7 +357,7 @@ def retrieve_download(dl):
 
     """
     if not match_workflow(dl.filename):
-        raise ValueError('attachment not a workflow: ' + dl.filename)
+        raise ValueError(f'attachment not a workflow: {dl.filename}')
 
     path = os.path.join(tempfile.gettempdir(), dl.filename)
     wf().logger.debug('downloading update from '
@@ -414,11 +414,10 @@ def get_downloads(repo):
 
 def latest_download(dls, alfred_version=None, prereleases=False):
     """Return newest `Download`."""
-    alfred_version = alfred_version or os.getenv('alfred_version')
-    version = None
-    if alfred_version:
+    if alfred_version := alfred_version or os.getenv('alfred_version'):
         version = Version(alfred_version)
-
+    else:
+        version = None
     dls.sort(reverse=True)
     for dl in dls:
         if dl.prerelease and not prereleases:

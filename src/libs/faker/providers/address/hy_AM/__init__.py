@@ -626,18 +626,16 @@ class Provider(AddressProvider):
         if state_abbr is None:
             state_abbr = self.random_element(self.states_abbr)
 
-        if state_abbr in self.states_abbr:
-            postcode = "%d" % (self.generator.random.randint(
-                            self.states_postcode[state_abbr][0],
-                            self.states_postcode[state_abbr][1]))
-
-            if len(postcode) == 3:
-                postcode = "0%s" % postcode
-
-            return postcode
-
-        else:
+        if state_abbr not in self.states_abbr:
             raise Exception('State Abbreviation not found in list')
+        postcode = "%d" % (self.generator.random.randint(
+                        self.states_postcode[state_abbr][0],
+                        self.states_postcode[state_abbr][1]))
+
+        if len(postcode) == 3:
+            postcode = f"0{postcode}"
+
+        return postcode
 
     def secondary_address(self):
         """

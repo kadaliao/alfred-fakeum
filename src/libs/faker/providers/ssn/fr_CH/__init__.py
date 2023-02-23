@@ -26,10 +26,7 @@ class Provider(SsnProvider):
         # repeat steps until it does qualify the test
 
         digits = ''.join([str(d) for d in digits])
-        ssn = digits[:3] + '.' \
-                         + digits[3:7] + '.' \
-                         + digits[7:11] + '.' \
-                         + digits[11:]
+        ssn = f'{digits[:3]}.{digits[3:7]}.{digits[7:11]}.{digits[11:]}'
         return ssn
 
     def vat_id(self):
@@ -46,4 +43,4 @@ class Provider(SsnProvider):
             return remainder
 
         vat_id = self.bothify('########')
-        return 'CHE' + vat_id + str(_checksum(vat_id))
+        return f'CHE{vat_id}{str(_checksum(vat_id))}'

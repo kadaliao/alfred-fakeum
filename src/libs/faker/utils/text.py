@@ -19,11 +19,7 @@ def slugify(value, allow_dots=False, allow_unicode=False):
 
     Adapted from Django 1.9
     """
-    if allow_dots:
-        pattern = _re_pattern_allow_dots
-    else:
-        pattern = _re_pattern
-
+    pattern = _re_pattern_allow_dots if allow_dots else _re_pattern
     value = six.text_type(value)
     if allow_unicode:
         value = unicodedata.normalize('NFKC', value)

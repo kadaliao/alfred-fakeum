@@ -86,9 +86,7 @@ class BaseProvider(object):
 
     def locale(self):
         language_code = self.language_code()
-        return language_code + '_' + self.random_element(
-            BaseProvider.language_locale_codes[language_code],
-        )
+        return f'{language_code}_{self.random_element(BaseProvider.language_locale_codes[language_code])}'
 
     def language_code(self):
         return self.random_element(BaseProvider.language_locale_codes.keys())
