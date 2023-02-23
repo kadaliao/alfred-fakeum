@@ -20,9 +20,7 @@ def checksum(digits, scale):
     https://no.wikipedia.org/wiki/F%C3%B8dselsnummer
     """
     chk_nbr = 11 - (sum(map(operator.mul, digits, scale)) % 11)
-    if chk_nbr == 11:
-        return 0
-    return chk_nbr
+    return 0 if chk_nbr == 11 else chk_nbr
 
 
 class Provider(SsnProvider):
@@ -79,5 +77,5 @@ class Provider(SsnProvider):
             # https://no.wikipedia.org/wiki/F%C3%B8dselsnummer
             if k1 == 10 or k2 == 10:
                 continue
-            pnr += '{}{}'.format(k1, k2)
+            pnr += f'{k1}{k2}'
             return pnr

@@ -319,11 +319,11 @@ class Provider(AddressProvider):
         See
         http://web.archive.org/web/20090930140939/http://www.govtalk.gov.uk/gdsc/html/noframes/PostCode-2-1-Release.htm
         """
-        postcode = ''
         pattern = self.random_element(self.postcode_formats)
-        for placeholder in pattern:
-            postcode += self.random_element(self._postcode_sets[placeholder])
-        return postcode
+        return ''.join(
+            self.random_element(self._postcode_sets[placeholder])
+            for placeholder in pattern
+        )
 
     def city_prefix(self):
         return self.random_element(self.city_prefixes)

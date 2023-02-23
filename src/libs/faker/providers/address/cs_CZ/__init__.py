@@ -761,4 +761,4 @@ class Provider(AddressProvider):
         return self.bothify(self.random_element(self.postcode_formats))
 
     def city_with_postcode(self):
-        return self.postcode() + " " + self.random_element(self.cities)
+        return f"{self.postcode()} {self.random_element(self.cities)}"

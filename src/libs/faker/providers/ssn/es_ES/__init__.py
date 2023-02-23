@@ -83,17 +83,12 @@ class Provider(BaseProvider):
         Code was converted from the minified js of: https://generadordni.es/
         """
 
-        sum_ = 0
         first_chr, cif_value = cif[0], cif[1:]
-        for index, char in enumerate(cif_value):
-            if index % 2:
-                sum_ += int(char)
-            else:
-                sum_ += sum(map(int, str(int(char) * 2)))
-        if sum_ > 10:
-            sum_ = int(str(sum_)[-1])
-        else:
-            sum_ = sum_
+        sum_ = sum(
+            int(char) if index % 2 else sum(map(int, str(int(char) * 2)))
+            for index, char in enumerate(cif_value)
+        )
+        sum_ = int(str(sum_)[-1]) if sum_ > 10 else sum_
         sum_ = 10 - (sum_ % 10)
 
         if first_chr in ['F', 'J', 'K', 'N', 'P', 'Q', 'R', 'S', 'U', 'V', 'W']:

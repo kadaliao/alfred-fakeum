@@ -54,8 +54,7 @@ class ISBN10(ISBN):
         weights = range(1, 10)
         body = ''.join([self.group, self.registrant, self.publication])
         remainder = sum(int(b) * w for b, w in zip(body, weights)) % 11
-        check_digit = 'X' if remainder == 10 else str(remainder)
-        return str(check_digit)
+        return 'X' if remainder == 10 else str(remainder)
 
     def format(self, separator=''):
         return separator.join([self.group, self.registrant, self.publication,

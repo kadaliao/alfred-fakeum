@@ -29,7 +29,7 @@ def choices_distribution_unique(a, p, random=None, length=1):
     choices = []
     items = list(a)
     probabilities = list(p)
-    for i in range(length):
+    for _ in range(length):
         cdf = list(cumsum(probabilities))
         normal = cdf[-1]
         cdf2 = [float(i) / float(normal) for i in cdf]
@@ -50,16 +50,16 @@ def choices_distribution(a, p, random=None, length=1):
 
     if hasattr(random, 'choices'):
         choices = random.choices(a, weights=p, k=length)
-        return choices
     else:
         choices = []
 
         cdf = list(cumsum(p))
         normal = cdf[-1]
         cdf2 = [float(i) / float(normal) for i in cdf]
-        for i in range(length):
+        for _ in range(length):
             uniform_sample = random_sample(random=random)
             idx = bisect.bisect_right(cdf2, uniform_sample)
             item = a[idx]
             choices.append(item)
-        return choices
+
+    return choices

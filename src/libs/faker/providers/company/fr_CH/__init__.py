@@ -31,9 +31,7 @@ class Provider(CompanyProvider):
 
         digits = ''.join([str(digit) for digit in digits])
         # finally return our random but valid BSN
-        return 'CHE-' + digits[0:3] + '.'\
-                      + digits[3:6] + '.'\
-                      + digits[6:9]
+        return f'CHE-{digits[:3]}.{digits[3:6]}.{digits[6:9]}'
     uid = ide
     # uid: german name for ide
     idi = ide

@@ -53,7 +53,7 @@ def write_docs(*args, **kwargs):
     fake = Faker(locale=DEFAULT_LOCALE)
 
     from faker.providers import BaseProvider
-    base_provider_formatters = [f for f in dir(BaseProvider)]
+    base_provider_formatters = list(dir(BaseProvider))
 
     doc = documentor.Documentor(fake)
 
@@ -61,7 +61,7 @@ def write_docs(*args, **kwargs):
 
     for provider, fakers in formatters:
         provider_name = doc.get_provider_name(provider)
-        fname = os.path.join(DOCS_ROOT, 'providers', '%s.rst' % provider_name)
+        fname = os.path.join(DOCS_ROOT, 'providers', f'{provider_name}.rst')
         with open(fname, 'wb') as fh:
             write_provider(fh, doc, provider, fakers)
 
@@ -75,7 +75,7 @@ def write_docs(*args, **kwargs):
 
     AVAILABLE_LOCALES = sorted(AVAILABLE_LOCALES)
     for lang in AVAILABLE_LOCALES:
-        fname = os.path.join(DOCS_ROOT, 'locales', '%s.rst' % lang)
+        fname = os.path.join(DOCS_ROOT, 'locales', f'{lang}.rst')
         with open(fname, 'wb') as fh:
             write(fh, '\n')
             title = 'Language {0}\n'.format(lang)
@@ -104,7 +104,7 @@ def _main(app, *args, **kwargs):
 
 
 def setup(app):
-    app.connect(str('builder-inited'), _main)
+    app.connect('builder-inited', _main)
 
 
 if __name__ == "__main__":

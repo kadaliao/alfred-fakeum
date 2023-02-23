@@ -72,8 +72,7 @@ def _findall(text, substr):
 def strftime(dt, fmt):
     if dt.year >= 1900:
         return super(type(dt), dt).strftime(fmt)
-    illegal_formatting = _illegal_formatting.search(fmt)
-    if illegal_formatting:
+    if illegal_formatting := _illegal_formatting.search(fmt):
         msg = 'strftime of dates before 1900 does not handle {0}'
         raise TypeError(msg.format(illegal_formatting.group(0)))
 
@@ -93,11 +92,7 @@ def strftime(dt, fmt):
     s2 = time.strftime(fmt, (year + 28,) + timetuple[1:])
     sites2 = _findall(s2, str(year + 28))
 
-    sites = []
-    for site in sites1:
-        if site in sites2:
-            sites.append(site)
-
+    sites = [site for site in sites1 if site in sites2]
     s = s1
     syear = "%04d" % (dt.year,)
     for site in sites:

@@ -129,25 +129,21 @@ class Provider(BaseProvider):
     @lowercase
     def email(self, domain=None):
         if domain:
-            email = '{0}@{1}'.format(self.user_name(), domain)
-        else:
-            pattern = self.random_element(self.email_formats)
-            email = "".join(self.generator.parse(pattern).split(" "))
-        return email
+            return '{0}@{1}'.format(self.user_name(), domain)
+        pattern = self.random_element(self.email_formats)
+        return "".join(self.generator.parse(pattern).split(" "))
 
     @lowercase
     def safe_email(self):
-        return '{}@example.{}'.format(
-            self.user_name(), self.random_element(self.safe_email_tlds),
-        )
+        return f'{self.user_name()}@example.{self.random_element(self.safe_email_tlds)}'
 
     @lowercase
     def free_email(self):
-        return self.user_name() + '@' + self.free_email_domain()
+        return f'{self.user_name()}@{self.free_email_domain()}'
 
     @lowercase
     def company_email(self):
-        return self.user_name() + '@' + self.domain_name()
+        return f'{self.user_name()}@{self.domain_name()}'
 
     @lowercase
     def free_email_domain(self):
@@ -170,23 +166,18 @@ class Provider(BaseProvider):
 
     @lowercase
     def ascii_free_email(self):
-        return self._to_ascii(
-            self.user_name() + '@' + self.free_email_domain(),
-        )
+        return self._to_ascii(f'{self.user_name()}@{self.free_email_domain()}')
 
     @lowercase
     def ascii_company_email(self):
-        return self._to_ascii(
-            self.user_name() + '@' + self.domain_name(),
-        )
+        return self._to_ascii(f'{self.user_name()}@{self.domain_name()}')
 
     @slugify_unicode
     def user_name(self):
         pattern = self.random_element(self.user_name_formats)
-        username = self._to_ascii(
+        return self._to_ascii(
             self.bothify(self.generator.parse(pattern)).lower(),
         )
-        return username
 
     @lowercase
     def hostname(self, levels=1):
@@ -201,8 +192,13 @@ class Provider(BaseProvider):
         web-12.williamson-hopkins.jackson.com
         """
         if levels < 1:
-            return self.random_element(self.hostname_prefixes) + '-' + self.numerify('##')
-        return self.random_element(self.hostname_prefixes) + '-' + self.numerify('##') + '.' + self.domain_name(levels)
+            return f'{self.random_element(self.hostname_prefixes)}-' + self.numerify('##')
+        return (
+            f'{self.random_element(self.hostname_prefixes)}-'
+            + self.numerify('##')
+            + '.'
+            + self.domain_name(levels)
+        )
 
     @lowercase
     def domain_name(self, levels=1):
@@ -218,9 +214,9 @@ class Provider(BaseProvider):
         if levels < 1:
             raise ValueError("levels must be greater than or equal to 1")
         if levels == 1:
-            return self.domain_word() + '.' + self.tld()
+            return f'{self.domain_word()}.{self.tld()}'
         else:
-            return self.domain_word() + '.' + self.domain_name(levels - 1)
+            return f'{self.domain_word()}.{self.domain_name(levels - 1)}'
 
     @lowercase
     @slugify_unicode
@@ -244,10 +240,7 @@ class Provider(BaseProvider):
         if schemes is None:
             schemes = ['http', 'https']
 
-        pattern = '{}://{}'.format(
-            self.random_element(schemes) if schemes else "",
-            self.random_element(self.url_formats),
-        )
+        pattern = f'{self.random_element(schemes) if schemes else ""}://{self.random_element(self.url_formats)}'
 
         return self.generator.parse(pattern)
 
@@ -266,10 +259,7 @@ class Provider(BaseProvider):
         )
 
         if network:
-            address += '/' + str(self.generator.random.randint(
-                subnet.prefixlen,
-                subnet.max_prefixlen,
-            ))
+            address += f'/{str(self.generator.random.randint(subnet.prefixlen, subnet.max_prefixlen))}'
             address = str(ip_network(address, strict=False))
 
         return address
@@ -303,10 +293,7 @@ class Provider(BaseProvider):
                     # If networks overlap partially, `address_exclude`
                     # will fail, but the network still must not be used
                     # in generation.
-                    if network.overlaps(network_to_exclude):
-                        return []
-                    else:
-                        return [network]
+                    return [] if network.overlaps(network_to_exclude) else [network]
 
             networks = list(map(_exclude_ipv4_network, networks))
 
@@ -419,19 +406,19 @@ class Provider(BaseProvider):
         address = str(ip_address(self.generator.random.randint(
             2 ** IPV4LENGTH, (2 ** IPV6LENGTH) - 1)))
         if network:
-            address += '/' + str(self.generator.random.randint(0, IPV6LENGTH))
+            address += f'/{str(self.generator.random.randint(0, IPV6LENGTH))}'
             address = str(ip_network(address, strict=False))
         return address
 
     def mac_address(self):
-        mac = [self.generator.random.randint(0x00, 0xff) for _ in range(0, 6)]
+        mac = [self.generator.random.randint(0x00, 0xff) for _ in range(6)]
         return ":".join(map(lambda x: "%02x" % x, mac))
 
     def uri_page(self):
         return self.random_element(self.uri_pages)
 
     def uri_path(self, deep=None):
-        deep = deep if deep else self.generator.random.randint(1, 3)
+        deep = deep or self.generator.random.randint(1, 3)
         return "/".join(
             self.random_elements(self.uri_paths, length=deep),
         )

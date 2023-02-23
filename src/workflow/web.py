@@ -435,18 +435,18 @@ class Response(object):
         if not self.stream:  # Try sniffing response content
             # Encoding declared in document should override HTTP headers
             if self.mimetype == 'text/html':  # sniff HTML headers
-                m = re.search(r"""<meta.+charset=["']{0,1}(.+?)["'].*>""",
-                              self.content)
-                if m:
-                    encoding = m.group(1)
+                if m := re.search(
+                    r"""<meta.+charset=["']{0,1}(.+?)["'].*>""", self.content
+                ):
+                    encoding = m[1]
 
             elif ((self.mimetype.startswith('application/')
                    or self.mimetype.startswith('text/'))
                   and 'xml' in self.mimetype):
-                m = re.search(r"""<?xml.+encoding=["'](.+?)["'][^>]*\?>""",
-                              self.content)
-                if m:
-                    encoding = m.group(1)
+                if m := re.search(
+                    r"""<?xml.+encoding=["'](.+?)["'][^>]*\?>""", self.content
+                ):
+                    encoding = m[1]
 
         # Format defaults
         if self.mimetype == 'application/json' and not encoding:
@@ -528,11 +528,11 @@ def request(method, url, params=None, data=None, headers=None, cookies=None,
     opener = urllib2.build_opener(*openers)
     urllib2.install_opener(opener)
 
-    if not headers:
-        headers = CaseInsensitiveDictionary()
-    else:
-        headers = CaseInsensitiveDictionary(headers)
-
+    headers = (
+        CaseInsensitiveDictionary(headers)
+        if headers
+        else CaseInsensitiveDictionary()
+    )
     if 'user-agent' not in headers:
         headers['user-agent'] = USER_AGENT
 
@@ -649,8 +649,8 @@ def encode_multipart_formdata(fields, files):
             name = name.encode('utf-8')
         if isinstance(value, unicode):
             value = value.encode('utf-8')
-        output.append('--' + boundary)
-        output.append('Content-Disposition: form-data; name="%s"' % name)
+        output.append(f'--{boundary}')
+        output.append(f'Content-Disposition: form-data; name="{name}"')
         output.append('')
         output.append(value)
 
@@ -658,28 +658,25 @@ def encode_multipart_formdata(fields, files):
     for name, d in files.items():
         filename = d[u'filename']
         content = d[u'content']
-        if u'mimetype' in d:
-            mimetype = d[u'mimetype']
-        else:
-            mimetype = get_content_type(filename)
+        mimetype = d[u'mimetype'] if u'mimetype' in d else get_content_type(filename)
         if isinstance(name, unicode):
             name = name.encode('utf-8')
         if isinstance(filename, unicode):
             filename = filename.encode('utf-8')
         if isinstance(mimetype, unicode):
             mimetype = mimetype.encode('utf-8')
-        output.append('--' + boundary)
+        output.append(f'--{boundary}')
         output.append('Content-Disposition: form-data; '
                       'name="%s"; filename="%s"' % (name, filename))
-        output.append('Content-Type: %s' % mimetype)
+        output.append(f'Content-Type: {mimetype}')
         output.append('')
         output.append(content)
 
-    output.append('--' + boundary + '--')
+    output.append(f'--{boundary}--')
     output.append('')
     body = CRLF.join(output)
     headers = {
-        'Content-Type': 'multipart/form-data; boundary=%s' % boundary,
+        'Content-Type': f'multipart/form-data; boundary={boundary}',
         'Content-Length': str(len(body)),
     }
     return (headers, body)

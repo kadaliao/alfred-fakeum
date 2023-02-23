@@ -6,10 +6,7 @@ from math import fmod
 
 
 def zfix(d):
-    if d < 10:
-        return "0" + str(d)
-    else:
-        return d
+    return f"0{str(d)}" if d < 10 else d
 
 
 class Provider(SsnProvider):
@@ -69,7 +66,7 @@ class Provider(SsnProvider):
         #
 
         if dob:
-            E = int(dob[0:2])
+            E = int(dob[:2])
             H = int(dob[2:4])
             N = int(dob[4:6])
 
@@ -84,17 +81,15 @@ class Provider(SsnProvider):
                         raise ValueError("Unknown gender - specify M or F.")
                 else:
                     M = self.generator.random_int(3, 4)
-            else:
-                # => person born before '99.
-                if gender:
-                    if gender.upper() == "F":
-                        M = 2
-                    elif gender.upper() == "M":
-                        M = 1
-                    else:
-                        raise ValueError("Unknown gender - specify M or F.")
+            elif gender:
+                if gender.upper() == "F":
+                    M = 2
+                elif gender.upper() == "M":
+                    M = 1
                 else:
-                    M = self.generator.random_int(1, 2)
+                    raise ValueError("Unknown gender - specify M or F.")
+            else:
+                M = self.generator.random_int(1, 2)
         elif gender:
             # => assume statistically that the person will be born before '99.
             E = self.generator.random_int(17, 99)
